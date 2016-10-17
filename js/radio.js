@@ -17,15 +17,17 @@
 
   , init: function (element, options) {
       var $el = this.$element = $(element)
+      $el.css('display','none');
 
       this.options = $.extend({}, $.fn.radio.defaults, options);
+      this.options.parent_style_class = $el.closest('.radio-inline').length ? '.radio-inline': '.radio';
       $el.before(this.options.template);
       this.setState();
     }
 
   , setState: function () {
       var $el = this.$element
-        , $parent = $el.closest('.radio');
+        , $parent = $el.closest(this.options.parent_style_class);
 
         $el.prop('disabled') && $parent.addClass('disabled');
         $el.prop('checked') && $parent.addClass('checked');
@@ -35,18 +37,19 @@
       var d = 'disabled'
         , ch = 'checked'
         , $el = this.$element
+        , _this = this
         , checked = $el.prop(ch)
-        , $parent = $el.closest('.radio')
+        , $parent = $el.closest(this.options.parent_style_class)
         , $parentWrap = $el.closest('form').length ? $el.closest('form') : $el.closest('body')
         , $elemGroup = $parentWrap.find(':radio[name="' + $el.attr('name') + '"]')
         , e = $.Event('toggle')
 
         $elemGroup.not($el).each(function () {
           var $el = $(this)
-            , $parent = $(this).closest('.radio');
+            , $parent = $(this).closest(_this.options.parent_style_class);
 
             if ($el.prop(d) == false) {
-              $parent.removeClass(ch) && $el.removeAttr(ch).trigger('change');
+              $parent.removeClass(ch) && $el.prop(ch,null).trigger('change');
             }
         });
 
@@ -63,7 +66,7 @@
   , setCheck: function (option) {
       var ch = 'checked'
         , $el = this.$element
-        , $parent = $el.closest('.radio')
+        , $parent = $el.closest(this.options.parent_style_class)
         , checkAction = option == 'check' ? true : false
         , checked = $el.prop(ch)
         , $parentWrap = $el.closest('form').length ? $el.closest('form') : $el.closest('body')
@@ -72,12 +75,12 @@
 
       $elemGroup.not($el).each(function () {
         var $el = $(this)
-          , $parent = $(this).closest('.radio');
+          , $parent = $(this).closest(this.options.parent_style_class);
 
-          $parent.removeClass(ch) && $el.removeAttr(ch);
+          $parent.removeClass(ch) && $el.prop(ch, null) && $el.removeAttr(ch);
       });
 
-      $parent[checkAction ? 'addClass' : 'removeClass'](ch) && checkAction ? $el.prop(ch, ch) : $el.removeAttr(ch);
+      $parent[checkAction ? 'addClass' : 'removeClass'](ch) && checkAction ? $el.prop(ch, ch) : $el.prop(ch, null) && $el.removeAttr(ch);
       $el.trigger(e);
 
       if (checked !== $el.prop(ch)) {
@@ -122,15 +125,20 @@
  /* RADIO DATA-API
   * =============== */
 
-  $(document).on('click.radio.data-api', '[data-toggle^=radio], .radio', function (e) {
+  $(document).on('click.radio.data-api', '[data-toggle^=radio], .radio, .radio-inline', function (e) {
     var $radio = $(e.target);
     e && e.preventDefault() && e.stopPropagation();
-    if (!$radio.hasClass('radio')) $radio = $radio.closest('.radio');
-    $radio.find(':radio').radio('toggle');
+    var $radio_style = $radio;
+    if (!$radio.hasClass('radio-inline')) $radio_style = $radio.closest('.radio-inline');
+    if (!$radio_style.length) {
+        if (!$radio.hasClass('radio')) $radio_style = $radio.closest('.radio');
+    }
+    $radio_style.find(':radio').radio('toggle');
   });
 
   $(function () {
-    $('[data-toggle="radio"]').each(function () {
+    // data-toggle=radio not follow the pattern of crispy-form
+    $('[data-toggle="radio"], .radio input, .radio-inline input').each(function () {
       var $radio = $(this);
       $radio.radio();
     });
