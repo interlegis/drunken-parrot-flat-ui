@@ -1,0 +1,19 @@
+{
+  "name": "drunken-parrot-flat-ui",
+  "version": "1.0.0",
+  "description": "Drunken Parrot Flat UI Free =======",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/interlegis/drunken-parrot-flat-ui.git"
+  },
+  "author": "",
+  "license": "",
+  "bugs": {
+    "url": "https://github.com/interlegis/drunken-parrot-flat-ui/issues"
+  },
+  "homepage": "https://github.com/interlegis/drunken-parrot-flat-ui#readme"
+}
